@@ -1,0 +1,14 @@
+{
+  "Servers": {
+      "1": {
+          "Name": "users-db-dev",
+          "Group": "Servers",
+          "Host": "users_db_dev",
+          "Port": 5432,
+          "MaintenanceDB": "users",
+          "Username": "root",
+          "SSLMode": "disable",
+          "PassFile": "/pgadmin4/config/passfile-example.txt"
+      }
+  }
+}

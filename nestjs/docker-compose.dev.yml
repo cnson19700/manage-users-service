@@ -1,0 +1,41 @@
+version: '3'
+services:
+  users_db_dev:
+    image: postgres:14-alpine
+    container_name: users_db_dev
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_DB=${DB_NAME}    
+    mem_limit: ${DB_MEM_LIMIT}
+    cpus: ${DB_CPUS}    
+  flyway_dev:
+    image: flyway/flyway
+    container_name: flyway_dev
+    command: -url=jdbc:postgresql://users_db_dev/${DB_NAME} -user=${DB_USERNAME} -password=${DB_PASSWORD} -mixed="true" -connectRetries=60 migrate
+    volumes:
+      - "./sql:/flyway/sql"
+    mem_limit: ${FLYWAY_MEM_LIMIT}
+    cpus: ${FLYWAY_CPUS}
+    depends_on:
+      - users_db_dev  
+  users_api_dev:
+    container_name: users_api_dev
+    build:
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - ./config/config.development.yaml
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: sh -c "yarn install && yarn run start:dev"
+    mem_limit: ${API_MEM_LIMIT}
+    cpus: ${API_CPUS}
+    ports:
+      - ${API_PORT}:4000
+    depends_on:
+      - users_db_dev 
